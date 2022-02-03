@@ -18,10 +18,10 @@ public class Bonus extends GameObject{
 	private int speed;
 	private int tailleRect;	
 	private Rectangle hitbox;
-	private enumBonus typeBonus;
+	private EnumBonus typeBonus;
 	
 	
-	public Bonus(SpriteBatch batch, ShapeRenderer sr, float posX, float posY, enumBonus typeBonus) {
+	public Bonus(SpriteBatch batch, ShapeRenderer sr, float posX, float posY, EnumBonus typeBonus) {
 		super(batch, sr, posX, posY);
 		this.typeBonus = typeBonus;
 		tailleRect = 15;
@@ -30,7 +30,7 @@ public class Bonus extends GameObject{
 	}
 	
 	public void activation(Vaisseau vaisseau, GameScreen jeu) {
-		enumBonus.activationBonus(typeBonus, vaisseau, jeu);
+		EnumBonus.activationBonus(typeBonus, vaisseau, jeu);
 	}
 
 	@Override

@@ -42,12 +42,14 @@ public class Vaisseau  extends GameObject  {
 	private boolean isInvicible;
 	private float dureeInvicibilite;
 	private float dureeInvicibiliteActuelle;
+	private Texture frameInvincible;
 
 	
 	public Vaisseau(SpriteBatch batch, ShapeRenderer sr, int x, int y){
 		
 		super(batch,sr, x, y);
 		texture = new Texture("spaceship.png");
+		frameInvincible = new Texture("spaceshipInvincible.png");
 		
 		FloatArray vertices = new FloatArray(new float[] {
 				3,0,
@@ -103,7 +105,7 @@ public class Vaisseau  extends GameObject  {
 		if(!isInvicible) {
 		spriteBatchHandle.draw(super.getTexture(), x-10, y-35,128,128);
 		}else {
-		spriteBatchHandle.draw(new Texture("spaceshipInvincible.png"), x-10, y-35,128,128);	
+		spriteBatchHandle.draw(frameInvincible, x-10, y-35,128,128);	
 		}
 	}
 	

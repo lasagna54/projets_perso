@@ -28,8 +28,7 @@ public class MainMenuScreen implements Screen{
 	Texture playButtonInactive;
 	Texture exitButtonActive;
 	Texture exitButtonInactive;
-	
-	 private TextureRegion myTextureRegion;
+
 	 private TextureRegionDrawable myTexRegionDrawable;
 	
 	Stage stage;
@@ -37,9 +36,8 @@ public class MainMenuScreen implements Screen{
 	
 	public MainMenuScreen(final JeuAsteroide jeu) {
 		this.jeu = jeu;
-		playButtonActive = new Texture("RectangleRouge.png");
-		myTextureRegion = new TextureRegion(playButtonActive);
-		myTexRegionDrawable = new TextureRegionDrawable(myTextureRegion);
+		
+		myTexRegionDrawable = quickDrawable("RectangleRouge.png");
 		
 		stage = new Stage();
 		boutonTest = new ImageButton(myTexRegionDrawable);
@@ -58,6 +56,11 @@ public class MainMenuScreen implements Screen{
 		stage.addActor(boutonTest);
 		Gdx.input.setInputProcessor(stage);
 		
+	}
+	
+	//Prend le string d'une texture renvoi un regiontexturedrawable
+	public TextureRegionDrawable quickDrawable(String textureString) {
+		return new TextureRegionDrawable(new TextureRegion(new Texture(textureString)));
 	}
 	
 	@Override

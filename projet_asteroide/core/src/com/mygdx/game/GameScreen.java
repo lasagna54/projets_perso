@@ -20,12 +20,13 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.mygdx.enums.StateGameScreen;
 import com.mygdx.gameobject.Asteroide;
 import com.mygdx.gameobject.Missile;
 import com.mygdx.gameobject.Vaisseau;
 import com.mygdx.gameobject.typesAsteroides;
 import com.mygdx.gameobject.bonus.Bonus;
-import com.mygdx.gameobject.bonus.enumBonus;
+import com.mygdx.gameobject.bonus.EnumBonus;
 import com.mygdx.gameobject.visuel.Amogus;
 
 import lombok.Getter;
@@ -67,6 +68,8 @@ public class GameScreen implements Screen{
 	Texture textureCoeur;
 	Amogus amogus;
 	Array<TagText> listeTagTextePourAfficher;
+	//Pour états:
+	StateGameScreen etatActuel;
 	
 
 	public GameScreen(JeuAsteroide jeu) {
@@ -74,6 +77,9 @@ public class GameScreen implements Screen{
 		this.jeu = jeu;
 		batch = jeu.batch;
 		sr = jeu.sr;
+		etatActuel = StateGameScreen.EN_COURS;
+		
+		
 		TextManager.setSpriteBatch(batch);
 		//sr = new ShapeRenderer();
 //		object = new GameObject("badlogic.jpg",batch,0,0);
@@ -122,6 +128,99 @@ public class GameScreen implements Screen{
 
 	@Override
 	public void render(float delta) {
+		switch (etatActuel) {
+		case DEFAITE:
+			break;
+		case EN_COURS:
+			renderEnCours(delta);
+			updateEnCours(delta);
+			break;
+		case EN_PAUSE:
+			renderEnCours(delta);
+			updateEnPause(delta);
+			break;
+		case DEBUG:
+			break;
+		default:
+			break;
+		
+		}
+	}
+	
+	
+	public void updateEnCours(float delta) {
+		
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+			etatActuel = StateGameScreen.EN_PAUSE;
+			musiqueEpique.stop();
+			return;
+		}
+		
+		amogus.update(Gdx.graphics.getDeltaTime());
+		
+		//bout de code pour mettre la pause
+		
+		if(TimeUtils.nanoTime() - lastAsteroideSpawnTime > deltaAsteroide ) {
+			if (deltaAsteroide > 200000000) deltaAsteroide*=0.99;
+			spawnAsteroide();
+		}
+		
+		if(TimeUtils.nanoTime() - lastBonusSpawnTime > 10000000000l ) {
+			spawnBonus();
+		}
+		
+		vaisseau.update(Gdx.graphics.getDeltaTime());
+		remetVaisseauDansLimite();
+		checkCollision();
+		
+		//Tire les missiles
+		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !(missiles.size >= vaisseau.getNbMissileSimultane()) && vaisseau.getDelaiSecondeEntreMissileVariable() <= 0 ) {
+			sonPew.play();
+			missiles.add(vaisseau.shoot());
+		}
+		
+		//Update tous les asteroides
+		updateAsteroides();
+		
+		
+		//Update les bonus
+		for (Iterator<Bonus> iter = listeBonus.iterator(); iter.hasNext();) {
+			Bonus bonus = iter.next();
+			bonus.update(Gdx.graphics.getDeltaTime());
+			if (overlapsRect(vaisseau.getHitbox(), bonus.getHitbox())) {	
+				bonus.activation(vaisseau, this);
+				iter.remove();
+			}
+		}
+		
+		
+		//Update les missiles
+		for (Iterator<Missile> iter = missiles.iterator(); iter.hasNext();) {
+			Missile miss = iter.next();
+			miss.update(Gdx.graphics.getDeltaTime());
+			if (miss.y>800 || checkCollisionMissileAsteroide(miss)){
+				miss.dispose();
+				iter.remove();
+			} 
+		}
+		//Met fin a la partie si le vaisseau est mourrue
+		if (vaisseau.getVie() <= 0) {
+			partieFinie = true;
+		}
+		
+		 tempsEcoule += Gdx.graphics.getDeltaTime();
+		
+	}
+	
+	public void updateEnPause(float delta) {
+		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+			etatActuel = StateGameScreen.EN_COURS;
+			musiqueEpique.play();
+			return;
+		}
+	}
+	
+	public void renderEnCours(float delta) {
 		if(partieFinie) {
 			
 			ScreenUtils.clear(0, 0, 0, 1);
@@ -135,8 +234,7 @@ public class GameScreen implements Screen{
 			}
 				
 			}else {
-				//appelle la fonction custom d'update
-				update();
+
 				ScreenUtils.clear(0, 0, 0, 1);
 				
 				//Debut batch
@@ -169,52 +267,22 @@ public class GameScreen implements Screen{
 				sr.end();
 			
 			}
-
-			
-
+		
 		
 	}
 	
-	public void update() {
-		
-		if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-			if (jeuEnPause) {
-				jeuEnPause = false;
-				musiqueEpique.play();
-			} else {
-				jeuEnPause = true;
-				musiqueEpique.pause();
-		}
-		}
-			
-		if(!jeuEnPause){	
-		
-		amogus.update(Gdx.graphics.getDeltaTime());
-		
-		//bout de code pour mettre la pause
-		
-		if(TimeUtils.nanoTime() - lastAsteroideSpawnTime > deltaAsteroide ) {
-			if (deltaAsteroide > 200000000) deltaAsteroide*=0.99;
-			spawnAsteroide();
-		}
-		
-		if(TimeUtils.nanoTime() - lastBonusSpawnTime > 10000000000l ) {
-			spawnBonus();
-		}
-		
-		vaisseau.update(Gdx.graphics.getDeltaTime());
-		remetVaisseauDansLimite();
-		checkCollision();
-		
-		//Tire les missiles
-		if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !(missiles.size >= vaisseau.getNbMissileSimultane()) && vaisseau.getDelaiSecondeEntreMissileVariable() <= 0 ) {
-			sonPew.play();
-			missiles.add(vaisseau.shoot());
-		}
-		
-		
-		
-		//Update les asteroides
+
+	//Spaw un asteroide avec un type random
+	public void spawnAsteroide(){	
+		typesAsteroides typeChoisi = typesAsteroides.getRandomType();  //Selection du type
+		int randomPos = MathUtils.random(typeChoisi.rayon,800-typeChoisi.rayon); //Positionnement sur l'axe x aléatoire en fonction du rayon
+		Asteroide toto = new Asteroide(batch,sr,randomPos,832, typeChoisi); 
+		asteroides.add(toto);
+		lastAsteroideSpawnTime = TimeUtils.nanoTime();  //Enregistre le timestamp
+	}
+	
+	//Deplace tous les asteroides et les supprimes si il sorte de l'écran.
+	public void updateAsteroides() {
 		for (Iterator<Asteroide> iter = asteroides.iterator(); iter.hasNext();) {
 			Asteroide asteo = iter.next();
 			asteo.update(Gdx.graphics.getDeltaTime());
@@ -222,58 +290,21 @@ public class GameScreen implements Screen{
 				iter.remove();
 			}			
 		}
-		
-		//Update les bonus
-		for (Iterator<Bonus> iter = listeBonus.iterator(); iter.hasNext();) {
-			Bonus bonus = iter.next();
-			bonus.update(Gdx.graphics.getDeltaTime());
-			if (overlapsRect(vaisseau.getHitbox(), bonus.getHitbox())) {	
-				bonus.activation(vaisseau, this);
-				iter.remove();
-			}
-		}
-		
-		
-		//Update les missiles
-		for (Iterator<Missile> iter = missiles.iterator(); iter.hasNext();) {
-			Missile miss = iter.next();
-			miss.update(Gdx.graphics.getDeltaTime());
-			if (miss.y>800 || checkCollisionMissileAsteroide(miss)){
-				miss.dispose();
-				iter.remove();
-			} 
-		}
-		//Met fin a la partie si le vaisseau est mourrue
-		if (vaisseau.getVie() <= 0) {
-			partieFinie = true;
-		}
-		
-		 tempsEcoule += Gdx.graphics.getDeltaTime();
-		
-		} //fin if de la pause
-		
 	}
 	
-
-	
-	public void spawnAsteroide(){
-		
-		typesAsteroides typeChoisi = typesAsteroides.getRandomType();
-		int randomPos = MathUtils.random(typeChoisi.rayon,800-typeChoisi.rayon);
-		Asteroide toto = new Asteroide(batch,sr,randomPos,832, typeChoisi);
-		asteroides.add(toto);
-		
-		lastAsteroideSpawnTime = TimeUtils.nanoTime();
-	}
-	
+	//Spawn un bonus avec un type aléatoire
 	public void spawnBonus() {
-		enumBonus typeBonus = enumBonus.getRandomType();
-		int randomPos = MathUtils.random(110,690);
-		Bonus nouveauBonus = new Bonus(batch,sr,randomPos,832, typeBonus);
+		EnumBonus typeBonus = EnumBonus.getRandomType();   //Selection du type
+		int randomPos = MathUtils.random(110,690);		//Position aléatoire sur l'axe X
+		Bonus nouveauBonus = new Bonus(batch,sr,randomPos,832, typeBonus);   //Spawn
 		listeBonus.add(nouveauBonus);
-		
-		lastBonusSpawnTime = TimeUtils.nanoTime();
+		lastBonusSpawnTime = TimeUtils.nanoTime();   //Enregistre le timeStamp
 	}
+	
+	// TO DO: fonction complexe qui fait le café avec argument facultatif?
+//	public void spawnObjectFromEnum(enum myEnum,) {
+//		
+//	}
 	
 
 	//Return true si le vaisseau est entré en collsion avec un asteroide
@@ -357,12 +388,10 @@ public class GameScreen implements Screen{
 	
 	//Réinitialise toutes les classes
 	public void reinitialisationAll() {
-		vaisseau.reinitialise();
-		
+		vaisseau.reinitialise();		
 		missiles.clear();
 		asteroides.clear();
-		listeTagTextePourAfficher.clear();
-		
+		listeTagTextePourAfficher.clear();	
 		amogus.setPosition(-30, 400);
 
 	}

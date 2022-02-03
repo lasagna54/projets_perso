@@ -8,7 +8,7 @@ import com.mygdx.game.TextManager;
 import com.mygdx.gameobject.Vaisseau;
 import com.mygdx.gameobject.typesAsteroides;
 
-public enum enumBonus {
+public enum EnumBonus {
 
 	VITESSE,
 	MULTIPLICATEUR_SCORE,
@@ -18,14 +18,14 @@ public enum enumBonus {
 	DELAI_MISSILE;
 	
 
-	enumBonus(){}
+	EnumBonus(){}
 	
-	public static enumBonus getRandomType() {
+	public static EnumBonus getRandomType() {
         Random random = new Random();
         return values()[random.nextInt(values().length)];
     }
 	
-	public static void activationBonus(enumBonus typeBonus, Vaisseau vaisseauCible, GameScreen ecranJeu) {
+	public static void activationBonus(EnumBonus typeBonus, Vaisseau vaisseauCible, GameScreen ecranJeu) {
 		
 		switch(typeBonus) {
 			case MISSILE_SUPP:

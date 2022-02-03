@@ -1,9 +1,9 @@
 package com.mygdx.enums;
 
-public enum stateGameScreen {
+public enum StateGameScreen {
 	
 	EN_COURS,
 	EN_PAUSE,
-	DEFAITE;
-
+	DEFAITE,
+	DEBUG;
 }
