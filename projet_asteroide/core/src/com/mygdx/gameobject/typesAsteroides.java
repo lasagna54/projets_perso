@@ -11,13 +11,13 @@ public enum typesAsteroides {
 	public final int rayon;
 	public final int vitessePixel;
 	public final int vie;
-	public final int pointRapporté;
+	public final int pointRapporte;
 
 	typesAsteroides(int rayon, int vitessePixel, int vie, int points) {
 		this.rayon = rayon;
 		this.vitessePixel = vitessePixel;
 		this.vie = vie;
-		this.pointRapporté = points;
+		this.pointRapporte = points;
 	}
 	
 	public static typesAsteroides getRandomType() {

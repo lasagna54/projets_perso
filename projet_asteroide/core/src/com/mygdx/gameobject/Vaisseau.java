@@ -97,7 +97,6 @@ public class Vaisseau  extends GameObject  {
 	public Missile shoot() {
 		delaiSecondeEntreMissileVariable = delaiSecondeEntreMissileFixe;
 		return new Missile(spriteBatchHandle, shapeRenderer, x+42, y+80);
-		
 	}
 	
 	@Override
@@ -137,9 +136,10 @@ public class Vaisseau  extends GameObject  {
 	
 	public void reinitialise() {
 		vie =3;
-		x = 350;
-		y = 50;
+		setX(350);
+		setY(50);
 		speed = 6;
+		
 	}
 	
 	@ToString.Include

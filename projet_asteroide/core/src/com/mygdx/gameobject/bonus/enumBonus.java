@@ -10,93 +10,96 @@ import com.mygdx.gameobject.typesAsteroides;
 
 public enum EnumBonus {
 
-	VITESSE,
-	MULTIPLICATEUR_SCORE,
-	VIE_SUPP,
-	MISSILE_SUPP,
-	SCORE_FLAT,
-	DELAI_MISSILE;
+	VITESSE("Bonus de vitesse!"),
+	MULTIPLICATEUR_SCORE("Score x "),  //TO DO: faire en sorte que la mult soit calculé ici
+	VIE_SUPP("Vie supplémentaire!"),
+	MISSILE_SUPP("Missile supplémentaire!"),
+	SCORE_FLAT(""), //TO DO faire en sorte que le bonus de score soit calculé ici
+	DELAI_MISSILE("Vitesse de tir augmentée!");
 	
 
-	EnumBonus(){}
+	String message;
+	
+	EnumBonus(String message){
+		this.message = message;
+	}
 	
 	public static EnumBonus getRandomType() {
         Random random = new Random();
         return values()[random.nextInt(values().length)];
     }
 	
-	public static void activationBonus(EnumBonus typeBonus, Vaisseau vaisseauCible, GameScreen ecranJeu) {
+	public static String activationBonus(EnumBonus typeBonus, Vaisseau vaisseauCible, GameScreen ecranJeu) {
 		
 		switch(typeBonus) {
 			case MISSILE_SUPP:
 				if (vaisseauCible.getNbMissileSimultane() < 5) {
-					activationMissileSup(vaisseauCible);
+					return activationMissileSup(vaisseauCible);
 				} else {
-					activationScoreFlat(ecranJeu);
+					return activationScoreFlat(ecranJeu);
 				}
-				break;
 			case MULTIPLICATEUR_SCORE:
-				activationMultiplicateurScore(ecranJeu);
-				break;
+				return activationMultiplicateurScore(ecranJeu);
 			case SCORE_FLAT:
-				activationScoreFlat(ecranJeu);
-				break;
-			case VIE_SUPP:
+				return activationScoreFlat(ecranJeu);
+			case VIE_SUPP:	
 				if (vaisseauCible.getVie() < 6) {
-					activationVieSupplementaire(vaisseauCible);
+					return activationVieSupplementaire(vaisseauCible);
 				}else {
-					activationScoreFlat(ecranJeu);
+					return activationScoreFlat(ecranJeu);
 				}
-				break;
 			case VITESSE:
 				if (vaisseauCible.getSpeed() <= 12) {
-					activationVitesse(vaisseauCible);
+					return activationVitesse(vaisseauCible);
 				}else {
-					activationScoreFlat(ecranJeu);
+					return activationScoreFlat(ecranJeu);
 				}
-				break;
 			case DELAI_MISSILE:
 				if (vaisseauCible.getDelaiSecondeEntreMissileFixe() > 0.1f) {
-					activationDelaiMissile(vaisseauCible);
+					return activationDelaiMissile(vaisseauCible);
 				}else {
-					activationScoreFlat(ecranJeu);
+					return activationScoreFlat(ecranJeu);
 				}
-				break;
-			default:
-				break;
+			default: 
+				System.out.println("Type de bonus non reconnu");
+				return ("Erreur");
 		
 		}
 		
 	}
 		
 	
-		private static void activationVitesse(Vaisseau vaisseauCible){		
+		private static String activationVitesse(Vaisseau vaisseauCible){		
 			vaisseauCible.setSpeed(vaisseauCible.getSpeed()+2);
+			return VITESSE.message;
 		}
 		
-		private static void activationMultiplicateurScore(GameScreen ecranJeuCible) {
+		private static String activationMultiplicateurScore(GameScreen ecranJeuCible) {
 			ecranJeuCible.setMultiplicateurScore(ecranJeuCible.getMultiplicateurScore()+0.5f);
+			return MULTIPLICATEUR_SCORE.message + ecranJeuCible.getMultiplicateurScore();
 		}
 		
-		private static int activationScoreFlat(GameScreen ecranJeuCible) {
+		private static String activationScoreFlat(GameScreen ecranJeuCible) {
 			int pointRapporte = (int)(1000*ecranJeuCible.getMultiplicateurScore());
 			ecranJeuCible.setScore(ecranJeuCible.getScore()+pointRapporte);
-			return pointRapporte;
+			return pointRapporte+"";
 			
 		}
 		
-		private static void activationMissileSup(Vaisseau vaisseauCible) {
+		private static String activationMissileSup(Vaisseau vaisseauCible) {
 			vaisseauCible.setNbMissileSimultane(vaisseauCible.getNbMissileSimultane()+1);
+			return MISSILE_SUPP.message;
 		}
 		
-		private static void activationVieSupplementaire(Vaisseau vaisseauCible) {
+		private static String activationVieSupplementaire(Vaisseau vaisseauCible) {
 			vaisseauCible.setVie(vaisseauCible.getVie()+1);
+			return VIE_SUPP.message;
 		}
 		
-		private static void activationDelaiMissile(Vaisseau vaisseauCible) {
+		private static String activationDelaiMissile(Vaisseau vaisseauCible) {
 			vaisseauCible.setDelaiSecondeEntreMissileFixe(vaisseauCible.getDelaiSecondeEntreMissileFixe()-0.1f);
+			return DELAI_MISSILE.message;
 		}
-		
 		
 	
 }

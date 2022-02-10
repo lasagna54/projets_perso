@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.GameScreen;
 import com.mygdx.game.JeuAsteroide;
+import com.mygdx.game.TagText;
+import com.mygdx.game.TextManager;
 import com.mygdx.gameobject.GameObject;
 import com.mygdx.gameobject.Vaisseau;
 
@@ -29,8 +31,9 @@ public class Bonus extends GameObject{
 		hitbox = new Rectangle(x,y,tailleRect, tailleRect);
 	}
 	
-	public void activation(Vaisseau vaisseau, GameScreen jeu) {
-		EnumBonus.activationBonus(typeBonus, vaisseau, jeu);
+	//Renvoi un string au jeu pour l'affichage du tagtext
+	public String activation(Vaisseau vaisseau, GameScreen jeu) {
+		return EnumBonus.activationBonus(typeBonus, vaisseau, jeu);
 	}
 
 	@Override

@@ -16,6 +16,7 @@ public class TextManager {
 		bfont.draw(spriteBatchHandle, msg, x,y);
 	}
 	
+	//Méthode pour afficher un Tag (c'est un objet a temps limité qui fini par fade out)
 	public static void drawTag(TagText tag) {
 		bfont.setColor(1, 1, 1, tag.getGamma());
 		draw(tag.getTexte(), tag.getX(), tag.getY());
